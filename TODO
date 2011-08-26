@@ -1,7 +1,16 @@
 #;;; -*- mode: org; -*-
 * DONE Simple Upload Page
   - State "DONE"       from "STARTED"    [2011-08-25 Thu 21:24]
-* STARTED Basic web app
+* DONE Basic web app
+  - State "DONE"       from "STARTED"    [2011-08-26 Fri 02:24]
 
   - [X] ring
-  - [ ] Tomcat
+  - [X] WAR
+
+  Usage:
+  
+  run the app
+  : $ lein ring server-headless
+
+  build the war / uberwar
+  : $ lein ring war

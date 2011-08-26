@@ -1,6 +1,6 @@
 (ns sthuebner.superupload.core
   (:use [ring.handler dump]
-	[ring.middleware file file-info lint]
+	[ring.middleware file-info lint resource]
 	[ring.util response]))
 
 
@@ -15,7 +15,7 @@
 (def app
   (-> handle-dump
       wrap-lint
-      (wrap-file "html")
+      (wrap-resource "public")
       wrap-file-info
       wrap-lint
       ))
