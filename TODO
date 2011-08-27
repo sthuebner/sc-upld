@@ -14,3 +14,7 @@
 
   build the war / uberwar
   : $ lein ring war
+* DONE Backend Skeleton for Upload
+  - State "DONE"       from "STARTED"    [2011-08-27 Sat 03:01]
+* DONE Backend Skeleton for Progress
+  - State "DONE"       from "STARTED"    [2011-08-27 Sat 03:01]

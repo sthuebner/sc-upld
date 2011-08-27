@@ -1,7 +1,7 @@
 ;;;; basic tests for GUI elements
 
 (ns sthuebner.superupload.basic-gui-test
-  (:use [sthuebner.superupload.core :only [app]]
+  (:use [sthuebner.superupload.core :only [endpoints]]
 	clojure.test
 	clojure.contrib.zip-filter.xml
 	ring.adapter.jetty)
@@ -35,7 +35,7 @@
 (defn- page-title
   "Returns the title of a given HTML page."
   [root]
-  (-> root zip/xml-zip (xml1-> :head text)))
+  (-> root zip/xml-zip (xml1-> :head :title text)))
 
 
 (defn- has-element?
@@ -53,11 +53,11 @@
 
 ;;;; Actual tests
 
-(defonce server (run-jetty #'app {:port 3000 :join? false}))
+(defonce server (run-jetty #'endpoints {:port 3000 :join? false}))
 
 
 ;; testing the upload page
-(let [url "http://localhost:3000/upload.html"]
+(let [url "http://localhost:3000/upload"]
 
   ;; testing if the page is accessible and is the right one
   (deftest load-upload-page
