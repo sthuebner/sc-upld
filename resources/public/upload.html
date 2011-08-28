@@ -4,9 +4,11 @@
   <head>
     <title>SuperUpload</title>
 
+    <link rel="stylesheet" type="text/css" href="/upload.css"></link>
+
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
-    <script type="text/javascript" src="upload.js"></script>
+    <script type="text/javascript" src="/upload.js"></script>
   </head>
   <body>
     <h1>SuperUpload</h1>
@@ -23,10 +25,12 @@
       <a id="download-link" href="#">Download File</a>
     </div>
 
-    <form id="description-form" action="" method="POST">
-      <input type="textarea" name="description" />
-      <input type="submit" name="submit" value="Save" />
-    </form>
+    <div id="description-container">
+      <form id="description-form" action="" method="POST">
+	<input type="textarea" name="description" />
+	<input type="submit" name="submit" value="Save" />
+      </form>
+    </div>
 
   </body>
 </html>

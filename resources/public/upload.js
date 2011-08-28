@@ -80,6 +80,8 @@ $( document ).ready( function() {
 	    repeatedlyHit( "/upload/"+ fileId +"/progress", intervall, updateProgress );
 	}, intervall);
 
+	$( "#progress-container" ).slideDown();
 	$( "#description-form" ).attr( "action", "/upload/"+ fileId +"/description" );
+	$( "#description-container" ).slideDown();
     });
 });

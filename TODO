@@ -20,7 +20,9 @@
 * DONE Show Filename of stored file
 * DONE Show Progress
 * DONE Description
-* TODO Hide Description Container initially
-* TODO Hide Progress Container initially
+* DONE Hide Description Container initially
+* DONE Hide iFrame
+* DONE Enable Description Form when upload started
+* DONE Hide Progress Container initially
 * TODO Enable Download link only when upload is finished
-* TODO Enable Description Form when upload started
+* TODO Host jQuery on the server
