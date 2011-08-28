@@ -17,6 +17,6 @@
 * DONE File Upload
 * DONE Extract storage logic into separate NS
 * DONE Asynchronous file upload
-* TODO Show Filename of stored file
-* STARTED Progress Bar
+* DONE Show Filename of stored file
+* DONE Show Progress
 * TODO Description

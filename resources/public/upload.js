@@ -44,10 +44,24 @@ function UID() {
     return (((Math.random() + 1) * 0x10000) | 0).toString( 16 ).substring( 1 );
 }
 
+function initProgressContainer( fileId ) {
+    $.ajax( "/upload/"+ fileId,
+	    { success: function( data ) {
+		// set filename
+		$( "#filename" ).html( "Storing as "+ data["local-file"] );
+		
+		// update link
+		var link = $( "#download-link" );
+		link.attr( "href", "/upload/"+ fileId + "/file" );
+	    }});
+}
+
 // keeps the ID of the currently uploaded file
 var fileId = null;
 
 $( document ).ready( function() {
+
+    $( "#download-link" ).attr( "disabled", "disabled" );
     
     // submit form when user selected a file
     $( "#file" ).change( function() {
@@ -61,6 +75,7 @@ $( document ).ready( function() {
     $( "#upload-form" ).submit( function() {
 	var intervall = 1000;
 	setTimeout( function() {
+	    initProgressContainer( fileId );
 	    repeatedlyHit( "/upload/"+ fileId +"/progress", intervall, updateProgress );
 	}, intervall);
     });
