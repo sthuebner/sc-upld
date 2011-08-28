@@ -3,14 +3,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>SuperUpload</title>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="upload.js"></script>
   </head>
   <body>
     <h1>SuperUpload</h1>
 
-    <form enctype="multipart/form-data"
-	  method="POST">
-      <input type="file" name="file" />
-      <input type="submit" name="submit" value="Save"/>
+    <form id="upload-form" action="upload" enctype="multipart/form-data" method="POST" target="upload-frame">
+      <input type="file" id="file" name="file" />
     </form>
+
+    <iframe id="upload-frame" name="upload-frame"></iframe>
+
+    <div id="progress"></div>
+
+    <form>
+      <input type="submit" name="submit" value="Save" />
+    </form>
+
   </body>
 </html>

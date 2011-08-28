@@ -57,7 +57,7 @@
 
 
 ;; testing the upload page
-(let [url "http://localhost:3000/upload"]
+(let [url "http://localhost:3000/upload.html"]
 
   ;; testing if the page is accessible and is the right one
   (deftest load-upload-page

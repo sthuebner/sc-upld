@@ -1,8 +1,6 @@
 #;;; -*- mode: org; -*-
 * DONE Simple Upload Page
-  - State "DONE"       from "STARTED"    [2011-08-25 Thu 21:24]
 * DONE Basic web app
-  - State "DONE"       from "STARTED"    [2011-08-26 Fri 02:24]
 
   - [X] ring
   - [X] WAR
@@ -15,6 +13,10 @@
   build the war / uberwar
   : $ lein ring war
 * DONE Backend Skeleton for Upload
-  - State "DONE"       from "STARTED"    [2011-08-27 Sat 03:01]
 * DONE Backend Skeleton for Progress
-  - State "DONE"       from "STARTED"    [2011-08-27 Sat 03:01]
+* DONE File Upload
+* DONE Extract storage logic into separate NS
+* DONE Asynchronous file upload
+* TODO Show Filename of stored file
+* STARTED Progress Bar
+* TODO Description
