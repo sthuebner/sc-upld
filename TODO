@@ -26,3 +26,4 @@
 * DONE Hide Progress Container initially
 * DONE Enable Download link only when upload is finished
 * DONE Host jQuery on the server
+* DONE Have a link on the final page to download the file

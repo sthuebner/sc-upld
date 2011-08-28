@@ -42,8 +42,8 @@
   (fn [req]
     (when (storage/exists? id)
       (-> (str "<html><body>"
-	       "Thanks! Your file <i>" (storage/filename id)
-	       "</i> has been stored as <i>" (storage/local-file id)
+	       "Thanks! Your file <a href=\"/upload/" id "/file\">" (storage/filename id)
+	       "</a> has been stored as <i>" (storage/local-file id)
 	       "</i>. Description: '" (storage/description id)
 	       "'</body></html>")
 	  response
