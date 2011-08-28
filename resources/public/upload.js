@@ -7,6 +7,8 @@
 
 /*
   Updates the progress bar.
+
+  DATA holds progress data as "<bytes-uploaded>/<file-size>"
 */
 function updateProgress( data ) {
     var progress = 100;
@@ -18,22 +20,31 @@ function updateProgress( data ) {
     return ( data != null && progress < 100 );
 }
 
+function uploadFinished( data ) {
+    $( "#download-link" ).slideDown();
+}
+
 
 /*
   Makes an AJAX call to URL, passes the returned data to CALLBACK, and
   continues every INTERVALL milliseconds, as long as CALLBACK's return
   value is true.
 
-  CALLBACK is a function of one argument. It should return TRUE or FALSE.
+  If CALLBACK returns false, call FINALFN and stop.
+
+  CALLBACK and FINALFN are functions of one argument.
 */
-function repeatedlyHit( url, intervall, callback ) {
+function repeatedlyHit( url, intervall, callback, finalFn ) {
     $.ajax( url,
 	    { success: function( data ) {
 		// if callback returns true, do it again…
 		if( callback( data ) ) {
 		    setTimeout( function() {
-			repeatedlyHit( url, intervall, callback )
-		    }, intervall )};
+			repeatedlyHit( url, intervall, callback, finalFn )
+		    }, intervall )
+		} else {
+		    finalFn( data );
+		};
 	    }});
 }
 
@@ -49,11 +60,10 @@ function initProgressContainer( fileId ) {
 	     headers: { accept: "application/json" },
 	     success: function( data ) {
 		 // set filename
-		$( "#filename" ).html( "Storing as "+ data["local-file"] );
+		$( "#filename" ).html( "Storing "+ data.name +" as "+ data["local-file"] );
 		
 		 // update link
-		 var link = $( "#download-link" );
-		 link.attr( "href", "/upload/"+ fileId + "/file" );
+		 $( "#download-link" ).attr( "href", "/upload/"+ fileId + "/file" );
 	     }});
 }
 
@@ -77,9 +87,13 @@ $( document ).ready( function() {
 	var intervall = 1000;
 	setTimeout( function() {
 	    initProgressContainer( fileId );
-	    repeatedlyHit( "/upload/"+ fileId +"/progress", intervall, updateProgress );
+	    repeatedlyHit( "/upload/"+ fileId +"/progress",
+			   intervall,
+			   updateProgress,
+			   uploadFinished );
 	}, intervall);
 
+	$( this ).slideUp();
 	$( "#progress-container" ).slideDown();
 	$( "#description-form" ).attr( "action", "/upload/"+ fileId +"/description" );
 	$( "#description-container" ).slideDown();

@@ -24,5 +24,5 @@
 * DONE Hide iFrame
 * DONE Enable Description Form when upload started
 * DONE Hide Progress Container initially
-* TODO Enable Download link only when upload is finished
+* DONE Enable Download link only when upload is finished
 * TODO Host jQuery on the server
