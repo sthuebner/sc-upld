@@ -25,4 +25,4 @@
 * DONE Enable Description Form when upload started
 * DONE Hide Progress Container initially
 * DONE Enable Download link only when upload is finished
-* TODO Host jQuery on the server
+* DONE Host jQuery on the server
