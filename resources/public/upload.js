@@ -45,15 +45,16 @@ function UID() {
 }
 
 function initProgressContainer( fileId ) {
-    $.ajax( "/upload/"+ fileId,
-	    { success: function( data ) {
-		// set filename
+    $.ajax({ url: "/upload/"+ fileId,
+	     headers: { accept: "application/json" },
+	     success: function( data ) {
+		 // set filename
 		$( "#filename" ).html( "Storing as "+ data["local-file"] );
 		
-		// update link
-		var link = $( "#download-link" );
-		link.attr( "href", "/upload/"+ fileId + "/file" );
-	    }});
+		 // update link
+		 var link = $( "#download-link" );
+		 link.attr( "href", "/upload/"+ fileId + "/file" );
+	     }});
 }
 
 // keeps the ID of the currently uploaded file
@@ -78,5 +79,7 @@ $( document ).ready( function() {
 	    initProgressContainer( fileId );
 	    repeatedlyHit( "/upload/"+ fileId +"/progress", intervall, updateProgress );
 	}, intervall);
+
+	$( "#description-form" ).attr( "action", "/upload/"+ fileId +"/description" );
     });
 });

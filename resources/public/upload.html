@@ -11,7 +11,7 @@
   <body>
     <h1>SuperUpload</h1>
 
-    <form id="upload-form" action="upload" enctype="multipart/form-data" method="POST" target="upload-frame">
+    <form id="upload-form" action="/upload" enctype="multipart/form-data" method="POST" target="upload-frame">
       <input type="file" id="file" name="file" />
     </form>
 
@@ -23,7 +23,8 @@
       <a id="download-link" href="#">Download File</a>
     </div>
 
-    <form>
+    <form id="description-form" action="" method="POST">
+      <input type="textarea" name="description" />
       <input type="submit" name="submit" value="Save" />
     </form>
 

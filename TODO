@@ -19,4 +19,8 @@
 * DONE Asynchronous file upload
 * DONE Show Filename of stored file
 * DONE Show Progress
-* TODO Description
+* DONE Description
+* TODO Hide Description Container initially
+* TODO Hide Progress Container initially
+* TODO Enable Download link only when upload is finished
+* TODO Enable Description Form when upload started

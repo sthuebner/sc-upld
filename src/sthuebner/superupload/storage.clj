@@ -23,7 +23,11 @@ Entries are only weakly referenced for GC to be able to clean up.
   [id entry]
   (swap! uploads assoc id (WeakReference. entry)))
 
-(def ^{:doc "Updates a given entry"} update-upload add-upload)
+(defn update-upload
+  "Updates a given entry"
+  [id props]
+  (let [current (get-upload id)]
+    (swap! uploads assoc id (WeakReference. (merge current props)))))
 
 (defn exists?
   [id]
@@ -60,3 +64,7 @@ Entries are only weakly referenced for GC to be able to clean up.
 (defn local-file
   [id]
   (-> id get-upload :tempfile))
+
+(defn description
+  [id]
+  (-> id get-upload :description))

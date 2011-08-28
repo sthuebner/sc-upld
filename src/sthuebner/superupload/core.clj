@@ -8,9 +8,10 @@
 (ns sthuebner.superupload.core
   (:require [sthuebner.superupload.storage :as storage]
 	    [clojure.contrib.json :as json])
-  (:use clojure.test
+  (:use sthuebner.superupload.middleware
+	clojure.test
 	[ring.handler dump]
-	[ring.middleware file-info lint resource]
+	[ring.middleware file-info keyword-params params resource]
 	[ring.util codec response]
 	[net.cgrand.moustache :only [app]]))
 
@@ -24,21 +25,33 @@
 
 
 
-
-
 ;;;; request handlers
 
 (def not-found {:status 404})
 
-(defn- upload-handler
+(defn- upload-post-handler
   "Creates an upload handler for a given file ID."
   [id]
   (fn [req]
     {:status 204
      :headers {"Location" (str "/upload/" id)}}))
 
-
 (defn- upload-get-handler
+  "Provide a human readable description about a given upload"
+  [id]
+  (fn [req]
+    (when (storage/exists? id)
+      (-> (str "<html><body>"
+	       "Thanks! Your file <i>" (storage/filename id)
+	       "</i> has been stored as <i>" (storage/local-file id)
+	       "</i>. Description: '" (storage/description id)
+	       "'</body></html>")
+	  response
+	  (content-type "text/html")))))
+
+
+(defn- upload-get-json-handler
+  "Provide data about a given upload - for machine consumption"
   [id]
   (fn [req]
     (when (storage/exists? id)
@@ -46,10 +59,10 @@
 	   :size (storage/filesize id)
 	   :content-type (storage/content-type id)
 	   :status (storage/status id)
-	   :local-file (.toString (storage/local-file id))}
+	   :local-file (.toString (storage/local-file id))
+	   :description (storage/description id)}
 	  json/json-str
-	  response
-	  (content-type "application/json")))))
+	  response))))
 
 
 (defn- progress-handler
@@ -70,6 +83,17 @@ Progress is represented as <bytes-uploaded>/<filesizes>"
 	    type (storage/content-type id)]
 	(-> file file-response
 	    (content-type type))))))
+
+
+(defn- description-post-handler
+  "Handler to update a given upload's description.
+Responds with redirecting the user to the upload information page."
+  [id]
+  (fn [{params :params}]
+    (when (storage/exists? id)
+      (storage/update-upload id (select-keys params [:description]))
+      (redirect-after-post (str "/upload/" id)))))
+
 
 
 
@@ -97,15 +121,24 @@ Progress is represented as <bytes-uploaded>/<filesizes>"
 			 (wrap-multipart-params-with-storage id)
 
 			 ;; return 204
-			 (upload-handler id))
+			 (upload-post-handler id))
 
-		  :get (upload-get-handler id)}
+		  :get (app
+			;; respond with JSON if requested so
+			(content-type-dispatch "application/json" (upload-get-json-handler id))
+			;; otherwise
+			(upload-get-handler id))}
 
    ;; GET /upload/[id]/progress => get progress for uploading file
    ["upload" id "progress"] {:get (progress-handler id)}
 
    ;; GET /upload/[id]/file => download the uploaded file
    ["upload" id "file"] {:get (download-handler id)}
+
+   ;; POST /upload/[id]/description => save description => redirect to /upload/[id]
+   ["upload" id "description"] {:post (app wrap-params
+					   wrap-keyword-params
+					   (description-post-handler id))}
    
    ;; /
    [""] (fn [req] (redirect "/upload.html"))))

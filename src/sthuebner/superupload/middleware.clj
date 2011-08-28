@@ -1,13 +1,31 @@
-;;;; Ring middleware to workaround the provided wrap-multipart-param
+;;;; Ring middleware
 
 
 (ns sthuebner.superupload.middleware
-  (:use [ring.middleware multipart-params])
+  (:use [ring.middleware multipart-params]
+	[ring.util response])
   (:require [sthuebner.superupload.storage :as storage]
 	    [clojure.java.io :as io])
   (:import [java.io File]))
 
 
+;;;; content negotiation
+(defn content-type-dispatch
+  [handler mime-type app]
+  (fn [{{accept "accept"} :headers :as req}]
+    (if (and accept
+	     (.startsWith accept mime-type))
+      (-> (app req)
+	  (content-type "application/json"))
+      (handler req))))
+      
+
+
+
+;;;; Middleware for file uploads
+;;;;
+;;;; to workaround Ring's original wrap-multipart-param, whose store function blocks
+;;;; until file is fully stored to disk
 (defn- make-temp-file
   "Returns a new temporary file. The file will be deleted on VM exit."
   []
