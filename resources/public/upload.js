@@ -22,6 +22,7 @@ function updateProgress( data ) {
 
 function uploadFinished( data ) {
     $( "#download-link" ).slideDown();
+    $( "#description-save-btn" ).removeAttr( "disabled" );
 }
 
 
@@ -72,8 +73,6 @@ var fileId = null;
 
 $( document ).ready( function() {
 
-    $( "#download-link" ).attr( "disabled", "disabled" );
-    
     // submit form when user selected a file
     $( "#file" ).change( function() {
 	// identify the file with a semi unique ID

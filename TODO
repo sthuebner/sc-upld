@@ -27,3 +27,8 @@
 * DONE Enable Download link only when upload is finished
 * DONE Host jQuery on the server
 * DONE Have a link on the final page to download the file
+* DONE Bigger Description area
+* DONE Disable Description Save initially
+* DONE Deploy on AWS Beanstalk
+* TODO GitHub README.md
+* TODO More Tests!

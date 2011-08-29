@@ -7,4 +7,4 @@
 		 [net.cgrand/moustache "1.0.0"]]
 
   ;; first do 'lein plugin install lein-ring 0.4.5'
-  :ring {:handler sthuebner.superupload.core/app})
+  :ring {:handler sthuebner.superupload.core/endpoints})

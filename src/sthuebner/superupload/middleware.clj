@@ -59,7 +59,7 @@
 
 
 ;; parse multipart forms (also saves uploaded files as temp files)
-(defn- wrap-multipart-params-with-storage
+(defn wrap-multipart-params-with-storage
   "Wrapper to parse multipart forms. Files are stored using async-uploader"
   [handler id]
   (fn [{:keys [content-length] :as req}]

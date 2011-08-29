@@ -1,13 +1,31 @@
+body {
+    width: 400;
+}
+
 #upload-frame {
     display: none;
 }
 
 #progress-container {
+    width: 100%
     display: none;
+    position: relative;
 }
 
 #description-container {
+    margin-top: 30px;
     display: none;
+    position: relative;
+}
+
+#description-form textarea {
+    width: 50%;
+    position: relative;
+}
+
+#description-form input {
+    position: relative;
+    top: -10px;
 }
 
 #download-link {
