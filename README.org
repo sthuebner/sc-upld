@@ -26,7 +26,7 @@ The application provides a couple of HTTP endpoints:
 
 All of these endpoints are implemented in sthuebner/superupload/core.clj
 
-** /upload.html
+** GET /upload.html
 
 Provides the UI for the application.
 
@@ -94,12 +94,12 @@ TBD
 
 ** Leiningen
 
-- run ='lein install plugin lein-ring 0.4.5'= (only needed once)
-- run ='lein ring server-headless [port]'= (default port is 3000)
+- run = 'lein install plugin lein-ring 0.4.5' = (only needed once)
+- run = 'lein ring server-headless [port]' = (default port is 3000)
 
 ** Servlet Container (Tomcat, etc.)
 
-- run ='lein ring uberwar'= to build a WAR including all dependencies
+- run = 'lein ring uberwar' = to build a WAR including all dependencies
 - deploy it on a servlet container of your choice
 
 * How to work with the code
@@ -108,9 +108,9 @@ This is how I develop in Emacs using SLIME and Swank:
 
 - download the code
 - install [[https://github.com/technomancy/leiningen][Leiningen]]
-- run ='lein install plugin swank-clojure 1.3.2'= (only needed once)
-- run ='lein swank'= to open up Swank REPL
-- open Emacs and run ='M-x slime-connect'=
+- run = 'lein install plugin swank-clojure 1.3.2' = (only needed once)
+- run = 'lein swank' = to open up Swank REPL
+- open Emacs and run = 'M-x slime-connect' =
 
 You'll be presented with a REPL directly running on the application
 code.
