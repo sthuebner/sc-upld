@@ -8,3 +8,5 @@
 
   ;; first do 'lein plugin install lein-ring 0.4.5'
   :ring {:handler sthuebner.superupload.core/endpoints})
+
+;; further, 'lein plugin install swank-clojure 1.3.2' will get you the SWANK plugin
