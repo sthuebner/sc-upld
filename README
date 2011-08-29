@@ -1,0 +1,116 @@
+# -*- mode: org -*-
+
+* sc-upld
+
+(Titel is intentionally left obfuscated; SEO = Search Engine Obfuscation)
+
+This is a Clojure implementation for the given problem.
+
+Author: Stefan Hübner, August 2011
+
+Public URL: http://sthuebner-superupload.elasticbeanstalk.com/
+
+* How it works
+
+The application provides a couple of HTTP endpoints:
+
+- =GET /= :: redirects to /upload.html
+- =GET /upload.html= :: form to upload a file
+- =POST /upload/[id]= :: upload a file associated with a given ID
+- =GET /upload/[id]= :: provide data about an uploaded file
+  - accept "application/json" :: JSON format
+  - accept "*" :: HTML format
+- =GET /upload/[id]/progress= :: provide progress information for an
+  uploading file
+- =GET /upload/[id]/file= :: provide the file to the client
+
+All of these endpoints are implemented in sthuebner/superupload/core.clj
+
+** /upload.html
+
+Provides the UI for the application.
+
+When a user selects a local file, a semi unique ID is generated and
+the file along with meta information is posted to /upload/[id].
+
+Once an upload started, a description can be provided and saved with
+the file when the upload is finished.
+
+** POST /upload/[id]
+
+Expects a multipart form containing a file and meta information. The
+file gets stored on disk and meta information is stored in an
+in-memory structure (see sthuebner/superupload/storage.clj)
+
+Uploaded files are stored temporarilly and get deleted when the
+application shuts down.
+
+** GET /upload/[id]
+
+Provides information about an uploaded file - either in JSON
+(if the client requests so by providing an appropriate Accept header)
+or in HTML format.
+
+** GET /upload/[id]/progress
+
+Provides progress information about a running upload. This endpoint is
+used by the UI to report upload progress back to the user.
+
+** GET /upload/[id]/file
+
+This endpoint provides to download the file.
+
+
+* Implementation
+
+The application backend is implemented in Clojure using [[https://github.com/mmcgrana/ring][Ring]] and
+[[https://github.com/cgrand/moustache][Moustache]] for HTTP routing and parsing.
+
+The frontend is implemented in plain HTML and JavaScript.
+
+* How to use the UI
+
+- go to http://sthuebner-superupload.elasticbeanstalk.com/
+- click "Choose File" and select a local file
+- once the file is selected the upload starts and progress information
+  is shown
+- while uploading you can then provide a description
+- save the description when the upload is finished
+- you'll be shown a page with a link to your file, the server side
+  filename it is stored as, plus the description you provided.
+
+* What's left
+
+More tests! I'm not experienced with GUI testing - in particular AJAX,
+but lacking UI tests a pain point of the implementation.
+
+Some basic backend tests are included and can be run using ='lein
+test'=. They also can be heavily improved and I'll be working on that.
+
+* How to run it
+** TODO CLI
+
+TBD
+
+** Leiningen
+
+- run ='lein install plugin lein-ring 0.4.5'= (only needed once)
+- run ='lein ring server-headless [port]'= (default port is 3000)
+
+** Servlet Container (Tomcat, etc.)
+
+- run ='lein ring uberwar'= to build a WAR including all dependencies
+- deploy it on a servlet container of your choice
+
+* How to work with the code
+
+This is how I develop in Emacs using SLIME and Swank:
+
+- download the code
+- install [[https://github.com/technomancy/leiningen][Leiningen]]
+- run ='lein install plugin swank-clojure 1.3.2'= (only needed once)
+- run ='lein swank'= to open up Swank REPL
+- open Emacs and run ='M-x slime-connect'=
+
+You'll be presented with a REPL directly running on the application
+code.
