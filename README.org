@@ -84,8 +84,8 @@ The frontend is implemented in plain HTML and JavaScript.
 More tests! I'm not experienced with GUI testing - in particular AJAX,
 but lacking UI tests a pain point of the implementation.
 
-Some basic backend tests are included and can be run using ='lein
-test'=. They also can be heavily improved and I'll be working on that.
+Some basic backend tests are included and can be run using '=lein
+test='. They also can be heavily improved and I'll be working on that.
 
 * How to run it
 ** TODO CLI
