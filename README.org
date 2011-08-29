@@ -110,7 +110,7 @@ This is how I develop in Emacs using SLIME and Swank:
 - install [[https://github.com/technomancy/leiningen][Leiningen]]
 - run = 'lein install plugin swank-clojure 1.3.2' = (only needed once)
 - run = 'lein swank' = to open up Swank REPL
-- open Emacs and run = 'M-x slime-connect' =
+- open Emacs and run '=M-x slime-connect='
 
 You'll be presented with a REPL directly running on the application
 code.
