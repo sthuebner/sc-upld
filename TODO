@@ -30,5 +30,7 @@
 * DONE Bigger Description area
 * DONE Disable Description Save initially
 * DONE Deploy on AWS Beanstalk
-* TODO GitHub README.md
+* DONE GitHub README.md
+* DONE Fix issue #1
+* DONE Fix issue #2
 * TODO More Tests!

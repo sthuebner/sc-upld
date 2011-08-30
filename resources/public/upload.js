@@ -21,7 +21,7 @@ function updateProgress( data ) {
 }
 
 function uploadFinished( data ) {
-    $( "#download-link" ).slideDown();
+    $( "#download-container" ).slideDown();
     $( "#description-save-btn" ).removeAttr( "disabled" );
 }
 
@@ -64,7 +64,10 @@ function initProgressContainer( fileId ) {
 		$( "#filename" ).html( "Storing "+ data.name +" as "+ data["local-file"] );
 		
 		 // update link
-		 $( "#download-link" ).attr( "href", "/upload/"+ fileId + "/file" );
+		 var link = $( "#download-link" );
+		 link.text( data.name );
+		 link.attr( "href", "/upload/"+ fileId + "/file" );
+		 link.attr( "type" , data["content-type"] );
 	     }});
 }
 

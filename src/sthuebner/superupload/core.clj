@@ -42,7 +42,9 @@
   (fn [req]
     (when (storage/exists? id)
       (-> (str "<html><body>"
-	       "Thanks! Your file <a href=\"/upload/" id "/file\">" (storage/filename id)
+	       "Thanks! Your file <a href=\"/upload/" id "/file\""
+               " type=\"" (storage/content-type id) "\""
+               ">" (storage/filename id)
 	       "</a> has been stored as <i>" (storage/local-file id)
 	       "</i>. Description: '" (storage/description id)
 	       "'</body></html>")
@@ -84,7 +86,11 @@ Progress is represented as <bytes-uploaded>/<filesizes>"
       (let [file (.toString (storage/local-file id))
 	    type (storage/content-type id)]
 	(-> file file-response
-	    (content-type type))))))
+	    (content-type type)
+            (header "Content-disposition"
+                    (str "attachment; filename=\""
+                         (storage/filename id)
+                         "\"")))))))
 
 
 (defn- description-post-handler

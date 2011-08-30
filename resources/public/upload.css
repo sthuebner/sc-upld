@@ -12,6 +12,11 @@ body {
     position: relative;
 }
 
+#download-container {
+    width: 100%;
+    display: none;
+}
+
 #description-container {
     margin-top: 30px;
     display: none;
@@ -26,8 +31,4 @@ body {
 #description-form input {
     position: relative;
     top: -10px;
-}
-
-#download-link {
-    display: none;
 }
