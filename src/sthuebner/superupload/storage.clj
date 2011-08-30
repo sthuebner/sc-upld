@@ -1,33 +1,27 @@
 ;;;; Uploads Storage
 ;;;;
 ;;;; Commons FileUpload is used to temporarily store uploaded files on disk.
-;;;; To avoid holding onto the upload entry forever, it is only weakly referenced.
-(ns sthuebner.superupload.storage
-  (:import [java.lang.ref WeakReference]))
+(ns sthuebner.superupload.storage)
 
 
 ;; the uploads storage is wrapped in an atom for save concurrent access
 (defonce ^{:doc "Map of recent uploads"}
   uploads (atom {}))
 
+(defn add-upload
+  "Thread-safely add entry to the uploads Map."
+  [id entry]
+  (swap! uploads assoc id entry))
+
 (defn get-upload
   "Returns an upload for a given ID."
   [id]
-  (when-let [weak-ref (get @uploads id)]
-    (.get weak-ref)))
-
-(defn add-upload
-  "Thread-safely add entry to the uploads Map.
-Entries are only weakly referenced for GC to be able to clean up.
-"
-  [id entry]
-  (swap! uploads assoc id (WeakReference. entry)))
+  (get @uploads id))
 
 (defn update-upload
   "Updates a given entry"
   [id props]
-  (let [current (get-upload id)]
-    (swap! uploads assoc id (WeakReference. (merge current props)))))
+  (swap! uploads assoc id (merge (get-upload id) props)))
 
 (defn exists?
   [id]
@@ -51,7 +45,11 @@ Entries are only weakly referenced for GC to be able to clean up.
 
 (defn bytes-uploaded
   [id]
-  (-> id get-upload :tempfile .length))
+  (long (or (-> id get-upload :bytes-uploaded) 0)))
+
+(defn set-bytes-uploaded
+  [id n]
+  (update-upload id {:bytes-uploaded n}))
 
 (defn content-type
   [id]

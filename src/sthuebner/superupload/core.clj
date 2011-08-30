@@ -59,7 +59,9 @@
 	   :size (storage/filesize id)
 	   :content-type (storage/content-type id)
 	   :status (storage/status id)
-	   :local-file (.toString (storage/local-file id))
+	   :local-file (if-let [local-file (storage/local-file id)]
+                         (.toString local-file)
+                         "")
 	   :description (storage/description id)}
 	  json/json-str
 	  response))))

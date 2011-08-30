@@ -2,7 +2,8 @@
 
 
 (ns sthuebner.superupload.middleware
-  (:use [ring.middleware multipart-params]
+  (:use [sthuebner.superupload.monitoring]
+        [ring.middleware multipart-params]
 	[ring.util response])
   (:require [sthuebner.superupload.storage :as storage]
 	    [clojure.java.io :as io])
@@ -42,17 +43,27 @@
   (fn [item]
     (let [temp-file (make-temp-file)
 	  upload-entry (-> (select-keys item [:filename :content-type])
-			   (assoc :tempfile temp-file))]
+			   (assoc :tempfile temp-file
+                                  ;; expected-bytes is probably not the actual file size, so we update afterwards
+                                  :size expected-bytes
+                                  :status "incomplete"))
+          
+          ;; monitor the inputstream and catch the number of bytes read
+          read-monitor (fn [n]
+                         (when (pos? n)
+                           (let [old (storage/bytes-uploaded id)
+                                 new (+ old n)]
+                             (storage/set-bytes-uploaded id new))))
+          monitoring-stream (make-inputstream-read-monitor (:stream item) read-monitor)]
+
       ;; create storage entry
-      (storage/add-upload id (assoc upload-entry
-			       ;; expected-bytes is probably not the actual file size, so we update afterwards
-			       :size expected-bytes
-			       :status "incomplete"))
-      
-      (io/copy (:stream item) temp-file)
+      (storage/add-upload id upload-entry)
+
+      ;; FIXME squeeze stream monitoring in here to update progress information
+      (io/copy monitoring-stream temp-file)
 
       ;; update storage entry
-      (storage/update-upload id (assoc upload-entry
+      (storage/update-upload id (assoc (storage/get-upload id)
 				  ;; take the acutal file size
 				  :size (.length temp-file)
 				  :status "complete")))))
