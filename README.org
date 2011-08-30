@@ -8,7 +8,9 @@ This is a Clojure implementation for the given problem.
 
 Author: Stefan Hübner, August 2011
 
-Public URL: http://sthuebner-superupload.elasticbeanstalk.com/
+Public URL: [[http://sthuebner-superupload.elasticbeanstalk.com/][AWS Beanstalk instance]]
+
+Bug tracking: [[https://github.com/sthuebner/sc-upld/issues][GitHub]]
 
 * How it works
 
@@ -59,7 +61,6 @@ used by the UI to report upload progress back to the user.
 ** GET /upload/[id]/file
 
 This endpoint provides to download the file.
-
 
 * Implementation
 
