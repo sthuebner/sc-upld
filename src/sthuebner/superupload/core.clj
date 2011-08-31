@@ -211,7 +211,7 @@ Responds with redirecting the user to the upload information page."
 (import [java.io ByteArrayInputStream])
 
 (deftest test-full-cycle
-  (let [uuid (java.util.UUID/randomUUID)
+  (let [uuid (.toString (java.util.UUID/randomUUID))
         
         upload-url (str "/upload/" uuid)
         progress-url (str upload-url "/progress")
@@ -257,6 +257,7 @@ Responds with redirecting the user to the upload information page."
     (testing "GET /upload/[id]/file"
       (let [file-response (GET file-url)]
         (is (http-ok? file-response))
+        (is (= (:body file-response) (storage/local-file uuid)))
         (are [header expected] (= expected (get-in file-response [:headers header]))
              "Content-disposition" "attachment; filename=\"test.txt\""
              "Content-Type" "text/plain")))))
