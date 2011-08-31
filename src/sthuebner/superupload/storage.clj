@@ -31,6 +31,10 @@
   [id]
   (swap! uploads dissoc id))
 
+(defn reset-uploads
+  "FOR TESTING PURPOSES ONLY. Resets the storage."
+  []
+  (swap! uploads {}))
 
 ;;;; accessors to the properties of uploads
 ;;;; encapsulating the inner structure of upload entries against the outer world

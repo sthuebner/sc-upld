@@ -173,7 +173,7 @@ Responds with redirecting the user to the upload information page."
 
 ;;;; Test fixtures
 
-(defn- dummy-upload
+(defn- dummy-upload-fixture
   [f]
   ;; populate storage
   (storage/add-upload "lolcat" {:filename "lolcat.png"
@@ -183,11 +183,17 @@ Responds with redirecting the user to the upload information page."
   
   ;; run the test
   (f)
+  )
 
+(defn- reset-storage-fixture
+  [f]
+  ;; run the test
+  (f)
   ;; reset storage
-  (storage/remove-upload "lolcat"))
+  (storage/reset-uploads)
+  )
 
-(use-fixtures :once dummy-upload)
+(use-fixtures :once dummy-upload-fixture reset-storage-fixture)
 
 ;;;; Tests
 
@@ -201,6 +207,61 @@ Responds with redirecting the user to the upload information page."
   (is (http-not-found? (GET "/upload/foo/file")))
   (is (http-redirect? (GET "/")))
   )
+
+(import [java.io ByteArrayInputStream])
+
+(deftest test-full-cycle
+  (let [uuid (java.util.UUID/randomUUID)
+        
+        upload-url (str "/upload/" uuid)
+        progress-url (str upload-url "/progress")
+        file-url (str upload-url "/file")
+        
+        form-body (str "--XXXX\r\n"
+                       "Content-Disposition: form-data;"
+                       "name=\"file\"; filename=\"test.txt\"\r\n"
+                       "Content-Type: text/plain\r\n\r\n"
+                       "foo\r\n"
+                       "--XXXX--")
+        request {:content-type "multipart/form-data; boundary=XXXX"
+                 :content-length (count form-body)
+                 :params {"foo"}
+                 :body (ByteArrayInputStream. (.getBytes form-body))}]
+
+    (testing "POST /upload/[id]"
+      (let [response (endpoints (merge {:request-method :post
+                                        :uri upload-url}
+                                       request))]
+        (is (= 204 (:status response)))
+        (is (= upload-url (get-in response [:headers "Location"])))))
+
+    (testing "GET /upload/[id] JSON response"
+      (let [response (endpoints {:uri upload-url
+                                 :request-method :get
+                                 :headers {"accept" "application/json"}})]
+        (is (http-ok? response))
+        (is (= "application/json" (get-in response [:headers "Content-Type"])) "Content-Type should be application/json")
+        (let [json-body (json/read-json (:body response))]
+          (are [key expected] (= expected (key json-body))
+               :name "test.txt"
+               :size 3
+               :content-type "text/plain"
+               :status "complete"
+               :description nil))))
+    
+    (testing "GET /upload/[id]/progress"
+      (let [progress-response (GET progress-url)]
+       (is (http-ok? progress-response))
+       (is (= "3/3" (:body progress-response)))))
+    
+    (testing "GET /upload/[id]/file"
+      (let [file-response (GET file-url)]
+        (is (http-ok? file-response))
+        (are [header expected] (= expected (get-in file-response [:headers header]))
+             "Content-disposition" "attachment; filename=\"test.txt\""
+             "Content-Type" "text/plain")))))
+
+
 
 ;; run them automatically
 (run-tests *ns*)
