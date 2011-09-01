@@ -40,7 +40,7 @@
   "Provide a human readable description about a given upload"
   [id]
   (fn [req]
-    (when (storage/exists? id)
+    (when (storage/exists-upload? id)
       (-> (str "<html><body>"
 	       "Thanks! Your file <a href=\"/upload/" id "/file\""
                " type=\"" (storage/content-type id) "\""
@@ -56,7 +56,7 @@
   "Provide data about a given upload - for machine consumption"
   [id]
   (fn [req]
-    (when (storage/exists? id)
+    (when (storage/exists-upload? id)
       (-> {:name (storage/filename id)
 	   :size (storage/filesize id)
 	   :content-type (storage/content-type id)
@@ -74,7 +74,7 @@
 Progress is represented as <bytes-uploaded>/<filesizes>"
   [id]
   (fn [req]
-    (when (storage/exists? id)
+    (when (storage/exists-upload? id)
       (response (str (storage/bytes-uploaded id) "/" (storage/filesize id))))))
 
 
@@ -82,7 +82,7 @@ Progress is represented as <bytes-uploaded>/<filesizes>"
   "Creates a handler to download a given upload"
   [id]
   (fn [req]
-    (when (storage/exists? id)
+    (when (storage/exists-upload? id)
       (let [file (.toString (storage/local-file id))
 	    type (storage/content-type id)]
 	(-> file file-response
@@ -98,7 +98,7 @@ Progress is represented as <bytes-uploaded>/<filesizes>"
 Responds with redirecting the user to the upload information page."
   [id]
   (fn [{params :params}]
-    (when (storage/exists? id)
+    (when (storage/exists-upload? id)
       (storage/update-upload id (select-keys params [:description]))
       (redirect-after-post (str "/upload/" id)))))
 
