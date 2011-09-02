@@ -50,7 +50,7 @@ application shuts down.
 
 ** POST /upload/[id]/description
 
-Expects a form containing a description field, assiating its value
+Expects a form containing a description field, associating its value
 with the respective upload.
 
 ** GET /upload/[id]
