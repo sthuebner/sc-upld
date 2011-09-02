@@ -50,7 +50,7 @@
 
 (defn filesize
   [id]
-  (-> id get-upload :size))
+  (-> id get-upload :filesize))
 
 (defn bytes-uploaded
   [id]
@@ -68,14 +68,21 @@
   [id]
   (-> id get-upload :status))
 
+(defn set-status
+  [id s]
+  (update-upload id {:status s}))
+
 (defn local-file
   [id]
-  (-> id get-upload :tempfile))
+  (-> id get-upload :local-file))
 
 (defn description
   [id]
   (-> id get-upload :description))
 
+(defn set-description
+  [id s]
+  (update-upload id {:description s}))
 
 
 ;;;; upload record
@@ -84,8 +91,8 @@
     [filename content-type filesize status local-file bytes-uploaded description])
 
 (defn make-upload
-  ([filename content-type file-size]
-     (make-upload filename content-type file-size nil nil nil nil))
+  ([filename content-type filesize]
+     (make-upload filename content-type filesize nil nil nil nil))
   ([filename content-type filesize status local-file bytes-uploaded description]
      (Upload. filename
               content-type
@@ -151,13 +158,42 @@
         (add-upload uuid entry) ; putting it back
         ))))
 
-(deftest resetting-storage
+(deftest test-reset-storage
   (let [upload (make-upload "foo.txt" "text/plain" 3)
         uuid (.toString (java.util.UUID/randomUUID))]
     (add-upload uuid upload)
     (is (exists-upload? uuid))
     (reset-uploads)
     (is (not (exists-upload? uuid)))))
+
+(deftest test-storage-convenience-accessors
+  (let [upload (make-upload "foo.txt" "text/plain" 3 "incomplete" "some file" 0 nil)
+        uuid (.toString (java.util.UUID/randomUUID))]
+    (add-upload uuid upload)
+
+    (are [f v] (= v (f uuid))
+         filename "foo.txt"
+         content-type "text/plain"
+         filesize 3
+         status "incomplete"
+         local-file "some file"
+         bytes-uploaded 0
+         description nil)
+
+    (testing "updating bytes-uploaded"
+      (set-bytes-uploaded uuid 3)
+      (is (= 3 (bytes-uploaded uuid))))
+
+    (testing "updating status"
+      (set-status uuid "complete")
+      (is (= "complete" (status uuid))))
+
+    (testing "updating description"
+      (set-description uuid "hello world")
+      (is (= "hello world" (description uuid))))
+    ))
+
+
 
 (run-tests *ns*
            ;;'sthuebner.superupload.core
