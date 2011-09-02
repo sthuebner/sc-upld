@@ -5,13 +5,33 @@
   (:use clojure.test))
 
 
+;;;; Upload record - defining the protocol of storage entries
+
+(defrecord Upload
+    [filename content-type filesize status local-file bytes-uploaded description])
+
+(defn make-upload
+  ([filename content-type filesize]
+     (make-upload filename content-type filesize nil nil nil nil))
+  ([filename content-type filesize status local-file bytes-uploaded description]
+     (Upload. filename
+              content-type
+              (when filesize (long filesize))
+              status
+              local-file
+              (when bytes-uploaded (long bytes-uploaded))
+              description)))
+
+
 ;; the uploads storage is wrapped in an atom for save concurrent access
 (defonce ^{:doc "Map of recent uploads"}
   uploads (atom {}))
 
 (defn add-upload
   "Thread-safely add entry to the uploads Map."
-  [id entry]
+  [id ^Upload entry]
+  (if-not (= (type entry) Upload)
+    (throw (IllegalArgumentException. "Provided entry must be of type Upload record")))
   (swap! uploads assoc id entry)
   entry)
 
@@ -41,77 +61,6 @@
   []
   (swap! uploads {}))
 
-;;;; accessors to the properties of uploads
-;;;; encapsulating the inner structure of upload entries against the outer world
-
-(defn filename
-  [id]
-  (-> id get-upload :filename))
-
-(defn filesize
-  [id]
-  (-> id get-upload :filesize))
-
-(defn bytes-uploaded
-  [id]
-  (long (or (-> id get-upload :bytes-uploaded) 0)))
-
-(defn set-bytes-uploaded
-  [id n]
-  (update-upload id {:bytes-uploaded n}))
-
-(defn content-type
-  [id]
-  (-> id get-upload :content-type))
-
-(defn status
-  [id]
-  (-> id get-upload :status))
-
-(defn set-status
-  [id s]
-  (update-upload id {:status s}))
-
-(defn local-file
-  [id]
-  (-> id get-upload :local-file))
-
-(defn description
-  [id]
-  (-> id get-upload :description))
-
-(defn set-description
-  [id s]
-  (update-upload id {:description s}))
-
-
-;;;; upload record
-
-(defrecord Upload
-    [filename content-type filesize status local-file bytes-uploaded description])
-
-(defn make-upload
-  ([filename content-type filesize]
-     (make-upload filename content-type filesize nil nil nil nil))
-  ([filename content-type filesize status local-file bytes-uploaded description]
-     (Upload. filename
-              content-type
-              (when filesize (long filesize))
-              status
-              local-file
-              (when bytes-uploaded (long bytes-uploaded))
-              description)))
-
-(deftest test-upload
-  (testing "make-upload"
-    (let [upload (make-upload "Test" "text/plain" 3)]
-      (are [key value] (= value (key upload))
-           :filename "Test"
-           :content-type "text/plain"
-           :filesize 3)
-      )
-    ))
-
 
 ;;;; storage tests
 
@@ -124,12 +73,20 @@
 
 (use-fixtures :each reset-storage-fixture)
 
+(deftest test-make-upload
+  (let [upload (make-upload "Test" "text/plain" 3)]
+    (are [key value] (= value (key upload))
+         :filename "Test"
+         :content-type "text/plain"
+         :filesize 3)))
+
 (deftest test-upload-storage
   (let [upload (make-upload "foo.txt" "text/plain" 3)
         uuid (.toString (java.util.UUID/randomUUID))]
     
     (testing "add-upload"
-      (is (identical? upload (add-upload uuid upload)) "Should return the entry"))
+      (is (identical? upload (add-upload uuid upload)) "Should return the entry")
+      (is (thrown? IllegalArgumentException (add-upload {:a "b"})) "Should only accept Upload records"))
     
     (testing "get-upload"
       (is (identical? upload (get-upload uuid)) "Should return the entry with the given ID"))
@@ -165,34 +122,6 @@
     (is (exists-upload? uuid))
     (reset-uploads)
     (is (not (exists-upload? uuid)))))
-
-(deftest test-storage-convenience-accessors
-  (let [upload (make-upload "foo.txt" "text/plain" 3 "incomplete" "some file" 0 nil)
-        uuid (.toString (java.util.UUID/randomUUID))]
-    (add-upload uuid upload)
-
-    (are [f v] (= v (f uuid))
-         filename "foo.txt"
-         content-type "text/plain"
-         filesize 3
-         status "incomplete"
-         local-file "some file"
-         bytes-uploaded 0
-         description nil)
-
-    (testing "updating bytes-uploaded"
-      (set-bytes-uploaded uuid 3)
-      (is (= 3 (bytes-uploaded uuid))))
-
-    (testing "updating status"
-      (set-status uuid "complete")
-      (is (= "complete" (status uuid))))
-
-    (testing "updating description"
-      (set-description uuid "hello world")
-      (is (= "hello world" (description uuid))))
-    ))
-
 
 
 (run-tests *ns*

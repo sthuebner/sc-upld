@@ -42,18 +42,20 @@
   [id expected-bytes]
   (fn [item]
     (let [temp-file (make-temp-file)
-	  upload-entry (-> (select-keys item [:filename :content-type])
-			   (assoc :tempfile temp-file
-                                  ;; expected-bytes is probably not the actual file size, so we update afterwards
-                                  :size expected-bytes
-                                  :status "incomplete"))
+	  upload-entry (-> (storage/make-upload (:filename item)
+                                                (:content-type item)
+                                                ;; expected-bytes is probably not the actual file size, so we update afterwards
+                                                expected-bytes)
+			   (assoc :local-file temp-file
+                                  :status "incomplete"
+                                  :bytes-uploaded 0))
           
           ;; monitor the inputstream and catch the number of bytes read
           read-monitor (fn [n]
                          (when (pos? n)
-                           (let [old (storage/bytes-uploaded id)
+                           (let [old (:bytes-uploaded (storage/get-upload id))
                                  new (+ old n)]
-                             (storage/set-bytes-uploaded id new))))
+                             (storage/update-upload id {:bytes-uploaded new}))))
           monitoring-stream (make-inputstream-read-monitor (:stream item) read-monitor)]
 
       ;; create storage entry
@@ -63,10 +65,9 @@
       (io/copy monitoring-stream temp-file)
 
       ;; update storage entry
-      (storage/update-upload id (assoc (storage/get-upload id)
-				  ;; take the acutal file size
-				  :size (.length temp-file)
-				  :status "complete")))))
+      (storage/update-upload id {;; take the acutal file size
+                                 :filesize (.length temp-file)
+                                 :status "complete"}))))
 
 
 ;; parse multipart forms (also saves uploaded files as temp files)

@@ -24,6 +24,13 @@
 )
 
 
+;;; extending clojure.contrib.json/Write-JSON to java.io.File
+;;; to conveniently serialize file names
+(extend java.io.File json/Write-JSON
+        {:write-json (fn [x ^java.io.PrintWriter out]
+                       (json/write-json (.toString x) out))})
+
+
 
 ;;;; request handlers
 
@@ -40,33 +47,23 @@
   "Provide a human readable description about a given upload"
   [id]
   (fn [req]
-    (when (storage/exists-upload? id)
+    (when-let [upload (storage/get-upload id)]
       (-> (str "<html><body>"
 	       "Thanks! Your file <a href=\"/upload/" id "/file\""
-               " type=\"" (storage/content-type id) "\""
-               ">" (storage/filename id)
-	       "</a> has been stored as <i>" (storage/local-file id)
-	       "</i>. Description: '" (storage/description id)
+               " type=\"" (:content-type upload) "\""
+               ">" (:filename upload)
+	       "</a> has been stored as <i>" (:local-file upload)
+	       "</i>. Description: '" (:description upload)
 	       "'</body></html>")
 	  response
 	  (content-type "text/html")))))
-
 
 (defn- upload-get-json-handler
   "Provide data about a given upload - for machine consumption"
   [id]
   (fn [req]
-    (when (storage/exists-upload? id)
-      (-> {:name (storage/filename id)
-	   :size (storage/filesize id)
-	   :content-type (storage/content-type id)
-	   :status (storage/status id)
-	   :local-file (if-let [local-file (storage/local-file id)]
-                         (.toString local-file)
-                         "")
-	   :description (storage/description id)}
-	  json/json-str
-	  response))))
+    (when-let [upload (storage/get-upload id)]
+      (-> upload json/json-str response))))
 
 
 (defn- progress-handler
@@ -74,22 +71,22 @@
 Progress is represented as <bytes-uploaded>/<filesizes>"
   [id]
   (fn [req]
-    (when (storage/exists-upload? id)
-      (response (str (storage/bytes-uploaded id) "/" (storage/filesize id))))))
+    (when-let [upload (storage/get-upload id)]
+      (response (str (:bytes-uploaded upload) "/" (:filesize upload))))))
 
 
 (defn- download-handler
   "Creates a handler to download a given upload"
   [id]
   (fn [req]
-    (when (storage/exists-upload? id)
-      (let [file (.toString (storage/local-file id))
-	    type (storage/content-type id)]
+    (when-let [upload (storage/get-upload id)]
+      (let [file (.toString (:local-file upload))
+	    type (:content-type upload)]
 	(-> file file-response
 	    (content-type type)
             (header "Content-disposition"
                     (str "attachment; filename=\""
-                         (storage/filename id)
+                         (:filename upload)
                          "\"")))))))
 
 
@@ -176,10 +173,9 @@ Responds with redirecting the user to the upload information page."
 (defn- dummy-upload-fixture
   [f]
   ;; populate storage
-  (storage/add-upload "lolcat" {:filename "lolcat.png"
-				:content-type "image/jped"
-				:tempfile "test/lolcat.jpg"
-				:status "complete"})
+  (storage/add-upload "lolcat" (-> (storage/make-upload "lolcat.png" "image/jped" 57951)
+                                   (assoc :local-file "test/lolcat.jpg"
+                                          :status "complete")))
   
   ;; run the test
   (f)
@@ -243,8 +239,8 @@ Responds with redirecting the user to the upload information page."
         (is (= "application/json" (get-in response [:headers "Content-Type"])) "Content-Type should be application/json")
         (let [json-body (json/read-json (:body response))]
           (are [key expected] (= expected (key json-body))
-               :name "test.txt"
-               :size 3
+               :filename "test.txt"
+               :filesize 3
                :content-type "text/plain"
                :status "complete"
                :description nil))))
@@ -257,7 +253,7 @@ Responds with redirecting the user to the upload information page."
     (testing "GET /upload/[id]/file"
       (let [file-response (GET file-url)]
         (is (http-ok? file-response))
-        (is (= (:body file-response) (storage/local-file uuid)))
+        (is (= (:body file-response) (:local-file (storage/get-upload uuid))))
         (are [header expected] (= expected (get-in file-response [:headers header]))
              "Content-disposition" "attachment; filename=\"test.txt\""
              "Content-Type" "text/plain")))))

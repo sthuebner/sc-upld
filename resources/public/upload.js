@@ -61,11 +61,11 @@ function initProgressContainer( fileId ) {
 	     headers: { accept: "application/json" },
 	     success: function( data ) {
 		 // set filename
-		$( "#filename" ).html( "Storing "+ data.name +" as "+ data["local-file"] );
+		$( "#filename" ).html( "Storing "+ data.filename +" as "+ data["local-file"] );
 		
 		 // update link
 		 var link = $( "#download-link" );
-		 link.text( data.name );
+		 link.text( data.filename );
 		 link.attr( "href", "/upload/"+ fileId + "/file" );
 		 link.attr( "type" , data["content-type"] );
 	     }});
