@@ -19,6 +19,7 @@ The application provides a couple of HTTP endpoints:
 - =GET /= :: redirects to /upload.html
 - =GET /upload.html= :: form to upload a file
 - =POST /upload/[id]= :: upload a file associated with a given ID
+- =POST /upload/[id]/description= :: associate a description with an upload
 - =GET /upload/[id]= :: provide data about an uploaded file
   - accept "application/json" :: JSON format
   - accept "*" :: HTML format
@@ -46,6 +47,11 @@ in-memory structure (see sthuebner/superupload/storage.clj)
 
 Uploaded files are stored temporarilly and get deleted when the
 application shuts down.
+
+** POST /upload/[id]/description
+
+Expects a form containing a description field, assiating its value
+with the respective upload.
 
 ** GET /upload/[id]
 

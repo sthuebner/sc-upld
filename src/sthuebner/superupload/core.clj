@@ -220,7 +220,7 @@ Responds with redirecting the user to the upload information page."
                        "--XXXX--")
         request {:content-type "multipart/form-data; boundary=XXXX"
                  :content-length (count form-body)
-                 :params {"foo"}
+                 ;;:params {"foo"}
                  :body (ByteArrayInputStream. (.getBytes form-body))}]
 
     (testing "POST /upload/[id]"
@@ -255,7 +255,19 @@ Responds with redirecting the user to the upload information page."
         (is (= (:body file-response) (:local-file (storage/get-upload uuid))))
         (are [header expected] (= expected (get-in file-response [:headers header]))
              "Content-disposition" "attachment; filename=\"test.txt\""
-             "Content-Type" "text/plain")))))
+             "Content-Type" "text/plain")))
+
+    (testing "POST /upload/[id]/description"
+      (let [response (endpoints {:uri (str upload-url "/description")
+                                 :request-method :post
+                                 :content-type "application/x-www-form-urlencoded"
+                                 :body (ByteArrayInputStream. (.getBytes "description=hello"))})]
+        (is (= 303 (:status response)))
+        (is (= upload-url (get-in response [:headers "Location"])))
+        (is (= "hello" (:description (storage/get-upload uuid))))
+        )
+      )
+    ))
 
 
 
