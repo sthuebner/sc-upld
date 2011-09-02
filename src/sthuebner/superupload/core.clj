@@ -10,7 +10,6 @@
 	    [clojure.contrib.json :as json])
   (:use sthuebner.superupload.middleware
 	clojure.test
-	[ring.handler dump]
 	[ring.middleware file-info keyword-params params resource]
 	[ring.util codec response]
 	[net.cgrand.moustache :only [app]]))
