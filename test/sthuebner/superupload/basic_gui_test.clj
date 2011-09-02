@@ -53,11 +53,17 @@
 
 ;;;; Actual tests
 
-(defonce server (run-jetty #'endpoints {:port 3000 :join? false}))
+(defn- server-fixture
+  [f]
+  (let [server (run-jetty #'endpoints {:port 3001 :join? false})]
+    (f)
+    (.stop server)))
+
+(use-fixtures :once server-fixture)
 
 
 ;; testing the upload page
-(let [url "http://localhost:3000/upload.html"]
+(let [url "http://localhost:3001/upload.html"]
 
   ;; testing if the page is accessible and is the right one
   (deftest load-upload-page
@@ -74,3 +80,5 @@
       (is (has-element? content :body :form :input (attr= :name "file") (attr= :type "file"))
 	  "The Upload page should have a file selection element")
       )))
+
+(run-tests *ns*)
